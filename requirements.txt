@@ -1,0 +1,24 @@
+# Trupti Dance Academy RAG — pinned dependencies (verified together)
+# Streamlit Community Cloud installs these on deploy.
+
+streamlit==1.58.0
+
+# LangChain 1.x stack
+langchain==1.3.7
+langchain-community==0.4.2
+langchain-core==1.4.6
+langchain-text-splitters==1.1.2
+langchain-openai==1.3.0
+langchain-chroma==1.1.0
+langchain-classic==1.0.8
+
+# Vector store + sparse retrieval
+chromadb==1.5.9
+rank-bm25==0.2.2
+
+# Graph orchestration
+langgraph==1.2.4
+
+# Observability (LangSmith) + config
+langsmith==0.8.14
+python-dotenv==1.2.2

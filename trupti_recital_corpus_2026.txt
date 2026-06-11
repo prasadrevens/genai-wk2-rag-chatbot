@@ -1,0 +1,225 @@
+==================================================================
+TRUPTI DANCE ACADEMY — ANNUAL RECITAL CORPUS
+==================================================================
+INDEXING NOTE (not for chunking — strip this block before ingest, or
+keep it and let the splitter drop it; it carries no answerable content):
+Tag every chunk produced from this file with metadata:
+    doc_type     = "recital"
+    year         = 2026
+    event_status = "completed"
+The doc_type tag lets the router send recital questions here. The
+event_status tag matters: this recital is OVER (held May 30, 2026), so
+a parent asking "when is the recital?" later in 2026 must be told it has
+already happened — not given a date that has passed as if it were
+upcoming. When the next recital is announced, add that as a separate
+file tagged event_status = "upcoming" so the two never blur.
+Fields marked [VERIFY] are still unconfirmed — replace before going live.
+==================================================================
+
+
+=== RECITAL OVERVIEW ===
+
+Trupti Dance Academy held its very first Annual Recital in 2026 — a
+milestone event for the academy. It was the academy's flagship
+showcase, where enrolled students performed the choreography they had
+rehearsed across the year, alongside guest and community performers
+from outside the academy. The academy intends to make the recital an
+annual tradition.
+
+Recital: Trupti Dance Academy's First Annual Recital
+Date: Friday, May 30, 2026 (this event has already taken place)
+Time: 6:00 PM to 8:00 PM
+Venue: Melissa, TX [VERIFY exact venue]
+Performers: 60+ dancers, in both group and solo routines.
+Turnout: A strong, enthusiastic audience of parents and community
+members.
+
+The recital was a separate event from regular weekly classes, with its
+own registration, fees, and refund rules described below. These rules
+are specific to the recital and differ from the academy's class
+enrollment terms. Because this recital is complete, the registration,
+ticket, and rehearsal sections below describe how this past event was
+run and are kept for reference; they are not an open invitation to
+register now.
+
+
+=== WHO CAN PERFORM ===
+
+Two groups can perform in the Annual Recital:
+
+1. Internal students — anyone currently enrolled in a Trupti Dance
+   Academy class for the 2025–2026 session. Internal students are
+   eligible to register for the recital but are not automatically
+   entered; a separate recital registration is required.
+
+2. External / community performers — dancers who are NOT enrolled in
+   regular classes at the academy, including students from other
+   studios, family groups, and independent performers. External
+   performers are welcome and register through the same form, at a
+   different fee tier (see Registration & Fees).
+
+All performers, internal and external, must complete recital
+registration and attend the mandatory dress rehearsal to perform.
+
+
+=== PERFORMER CATEGORIES (2026 RECITAL) ===
+
+The first recital's routines were organized into age- and group-based
+categories. Performers were grouped as follows:
+
+- Kids (4–6 years) — youngest solo/group dancers.
+- Kids (7–8 years).
+- Girls group (9–15 years).
+- Ladies group (15+ years) — teen and adult women.
+- Parent and child (2–3 years) — a parent dancing together with a
+  toddler aged 2–3.
+
+Routines included both group numbers and solo performances across these
+categories. A performer's category was based on the dancer's age (and,
+for the parent-and-child category, on the parent-plus-toddler pairing).
+
+
+=== REGISTRATION & FEES (2026 RECITAL — NOW CLOSED) ===
+
+Registration for the 2026 recital is closed; the event has taken place.
+The details below describe how registration was run, for reference. All
+fee amounts below are UNCONFIRMED placeholders [VERIFY] — replace with
+the actual 2026 figures or remove if you'd rather not publish them.
+
+Fees (2026, [VERIFY] all amounts):
+- Participation fee, internal students: $45 per performer. [VERIFY]
+- Participation fee, external / community performers: $75 per
+  performer. [VERIFY]
+- Costume fee: $60 per costume, per routine. [VERIFY] Costumes were
+  custom-ordered per performer after registration closed.
+- Additional routine: a performer in more than one routine paid one
+  participation fee plus one costume fee per additional routine.
+
+The participation fee covered rehearsal space, venue, staffing, and
+production. The costume fee covered the custom costume, which the
+performer kept after the recital.
+
+Audience tickets were separate from performer fees — see Tickets.
+
+
+=== REHEARSAL SCHEDULE ===
+
+Regular routine rehearsals happen inside scheduled class time for
+internal students in the weeks leading up to the recital. External
+performers are assigned to rehearsal blocks at registration.
+
+Mandatory dress rehearsal: Friday, May 15, 2026, at the venue. [VERIFY]
+Call times are assigned by routine and emailed one week before.
+
+Attendance at the dress rehearsal is required to perform in the
+recital. A performer who misses the dress rehearsal without prior
+arrangement may be removed from the show; recital fees in that case
+follow the recital refund policy below.
+
+
+=== TICKETS (AUDIENCE) ===
+
+Audience tickets are required for all guests aged 3 and older.
+Performers do not need an audience ticket.
+
+- General admission: $20 per ticket. [VERIFY]
+- Children ages 3–10: $12 per ticket. [VERIFY]
+- Children under 3: free (lap seating, no separate seat).
+- Each registered performer receives 2 complimentary guest tickets.
+  [VERIFY]
+
+Tickets go on sale April 1, 2026 and are sold online and at the door
+while seats remain. The venue is reserved seating; earlier purchase
+means better seats.
+
+
+=== RECITAL REFUND & WITHDRAWAL POLICY ===
+
+This refund policy applies ONLY to the Annual Recital. It is separate
+from, and different from, the refund rules for regular class
+enrollments. Class enrollment refunds are governed by the academy's
+Terms & Conditions, not by this section.
+
+For the recital specifically:
+
+1. Participation fee — refundable, minus a $15 administrative fee, if
+   the performer withdraws in writing at least 30 days before the
+   recital date. Withdrawals fewer than 30 days before the recital are
+   not eligible for a participation-fee refund, because venue and
+   staffing costs are already committed. [VERIFY amounts/window]
+
+2. Costume fee — non-refundable once costumes have been ordered.
+   Costumes are ordered immediately after the registration deadline.
+   A performer who withdraws after costumes are ordered still receives
+   their costume but does not receive a costume-fee refund.
+
+3. Audience tickets — non-refundable, but transferable to another
+   guest.
+
+4. Removal for missed dress rehearsal — treated as a withdrawal as of
+   the recital date, so the participation fee is non-refundable at that
+   point and the costume fee follows rule 2.
+
+Special situations — medical emergencies, injury, or family
+emergencies — are reviewed individually. Performers in these situations
+should contact the academy directly so the team can help.
+
+
+=== RECITAL FAQ ===
+
+Q: When is the recital? / Is there a recital coming up?
+A: Trupti Dance Academy held its first Annual Recital on May 30, 2026,
+from 6:00 to 8:00 PM, and that event is now complete. There isn't a
+new recital date announced yet. The academy plans to make the recital
+an annual tradition, so watch for an announcement about the next one,
+or contact the team to be notified.
+
+Q: How did the first recital go?
+A: Wonderfully — it was the academy's first-ever recital, with 60+
+performers in both group and solo routines, and a strong, enthusiastic
+turnout of parents and community members.
+
+Q: Can I still register for the recital?
+A: Registration for the 2026 recital is closed and the event has
+already happened. There is no open recital registration right now. When
+the next recital is announced, registration details will be shared.
+
+Q: What age groups perform in the recital? / Is there something for
+very young children?
+A: The first recital had categories spanning all ages: Kids (4–6),
+Kids (7–8), a Girls group (9–15), a Ladies group (15+), and a Parent
+and child category for toddlers aged 2–3 dancing with a parent. So
+even very young children can take part — the youngest dance alongside a
+parent.
+
+Q: Is the recital included in my class fees?
+A: No. The recital is a separate optional event with its own
+registration and fees. Being enrolled in a class makes you eligible to
+register, but the recital participation fee and costume fee are charged
+separately.
+
+Q: My child takes classes here — are they automatically in the recital?
+A: No. Enrolled students are eligible but must complete a separate
+recital registration by the deadline to perform.
+
+Q: Can my niece, who dances at another studio, perform in the recital?
+A: Yes. External and community performers are welcome and register
+through the same form at the external fee tier.
+
+Q: Can I get a refund if my child can't do the recital after all?
+A: It depends on when and on which fee. The recital has its own refund
+rules: the participation fee is refundable minus an admin fee if you
+withdraw at least 30 days before the recital, and the costume fee is
+non-refundable once costumes are ordered. These recital rules are
+different from the refund rules for regular classes. For your specific
+situation, the team can walk you through what applies.
+
+Q: How many tickets do performers get?
+A: Each registered performer receives complimentary guest tickets;
+additional guests need audience tickets.
+
+Q: What if we miss the dress rehearsal?
+A: The dress rehearsal is mandatory to perform. Missing it without
+prior arrangement may mean being removed from the show, and recital
+fees then follow the recital refund policy. If something comes up,
+contact the team as early as possible.
