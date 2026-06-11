@@ -1,5 +1,5 @@
 ==================================================================
-TRUPTI DANCE ACADEMY — ANNUAL RECITAL CORPUS
+ DANCE ACADEMY — ANNUAL RECITAL CORPUS
 ==================================================================
 INDEXING NOTE (not for chunking — strip this block before ingest, or
 keep it and let the splitter drop it; it carries no answerable content):
@@ -19,14 +19,14 @@ Fields marked [VERIFY] are still unconfirmed — replace before going live.
 
 === RECITAL OVERVIEW ===
 
-Trupti Dance Academy held its very first Annual Recital in 2026 — a
+ Dance Academy held its very first Annual Recital in 2026 — a
 milestone event for the academy. It was the academy's flagship
 showcase, where enrolled students performed the choreography they had
 rehearsed across the year, alongside guest and community performers
 from outside the academy. The academy intends to make the recital an
 annual tradition.
 
-Recital: Trupti Dance Academy's First Annual Recital
+Recital:  Dance Academy's First Annual Recital
 Date: Friday, May 30, 2026 (this event has already taken place)
 Time: 6:00 PM to 8:00 PM
 Venue: Melissa, TX [VERIFY exact venue]
@@ -47,7 +47,7 @@ register now.
 
 Two groups can perform in the Annual Recital:
 
-1. Internal students — anyone currently enrolled in a Trupti Dance
+1. Internal students — anyone currently enrolled in Dance
    Academy class for the 2025–2026 session. Internal students are
    eligible to register for the recital but are not automatically
    entered; a separate recital registration is required.
@@ -168,7 +168,7 @@ should contact the academy directly so the team can help.
 === RECITAL FAQ ===
 
 Q: When is the recital? / Is there a recital coming up?
-A: Trupti Dance Academy held its first Annual Recital on May 30, 2026,
+A:  Dance Academy held its first Annual Recital on May 30, 2026,
 from 6:00 to 8:00 PM, and that event is now complete. There isn't a
 new recital date announced yet. The academy plans to make the recital
 an annual tradition, so watch for an announcement about the next one,

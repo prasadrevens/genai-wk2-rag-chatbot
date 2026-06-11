@@ -6,8 +6,8 @@ Exposes:
     answer(app, question, thread_id) -> {"final_answer", "route", "language"}
 
 Needs in the working directory:
-    trupti_dance_academy_corpus.txt   (classes)
-    trupti_recital_corpus_2026.txt    (recital)
+    tda_corpus.txt                 (classes)
+    tda_recital_corpus_2026.txt    (recital)
     .env  with  OPENAI_API_KEY=<your Nebius key>
 """
 
@@ -34,9 +34,9 @@ EMBED_MODEL = "Qwen/Qwen3-Embedding-8B"
 CHAT_MODEL = "meta-llama/Llama-3.3-70B-Instruct"
 
 CORPORA = [
-    {"path": "trupti_dance_academy_corpus.txt",
+    {"path": "tda_corpus.txt",
      "metadata": {"doc_type": "classes", "year": 2026, "event_status": "current"}},
-    {"path": "trupti_recital_corpus_2026.txt",
+    {"path": "tda_recital_corpus_2026.txt",
      "metadata": {"doc_type": "recital", "year": 2026, "event_status": "completed"}},
 ]
 
