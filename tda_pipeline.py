@@ -21,7 +21,7 @@ from dotenv import load_dotenv
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
-from langchain_chroma import Chroma
+from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_community.retrievers import BM25Retriever
 from langchain_classic.retrievers import EnsembleRetriever
 from langgraph.graph import StateGraph, END
@@ -90,12 +90,13 @@ def build_app():
         base_url=NEBIUS_BASE, model=EMBED_MODEL,
         check_embedding_ctx_length=False, api_key=api_key,
     )
-    vectordb = Chroma.from_documents(all_chunks, embedding=embeddings)
 
     def make_hybrid(doc_type: str, k: int = 4) -> EnsembleRetriever:
+        # One store per shelf, built from that shelf's chunks only — so no
+        # metadata filter is needed, and there's no chromadb dependency.
         subset = [d for d in all_chunks if d.metadata["doc_type"] == doc_type]
-        dense = vectordb.as_retriever(
-            search_kwargs={"k": k, "filter": {"doc_type": doc_type}})
+        dense = InMemoryVectorStore.from_documents(
+            subset, embedding=embeddings).as_retriever(search_kwargs={"k": k})
         sparse = BM25Retriever.from_documents(subset)
         sparse.k = k
         return EnsembleRetriever(retrievers=[dense, sparse], weights=[0.5, 0.5])

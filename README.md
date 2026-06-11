@@ -1,6 +1,7 @@
-# Dance Academy — RAG Assistant
+# Trupti Dance Academy — RAG Assistant
 
-A multilingual customer-support assistant for [Dance Academy], built as a Streamlit website with the chatbot
+A multilingual customer-support assistant for [Trupti Dance Academy](https://truptidance.com)
+(a Bollywood / BollyX studio in Melissa, TX), built as a Streamlit website with the chatbot
 on the side. Parents and students can ask about **enrollment, schedule, pricing, policies, and
 the annual recital** — in **English, Hindi, or Telugu** — and the bot escalates to a human when
 the answer isn't in the documents.
@@ -19,7 +20,7 @@ detect_translate → router → retrieve → generate → (escalate?) → transl
 |---|---|
 | **Translate-first multilingual** | `detect_translate` → answer in English → `translate_back` |
 | **Metadata routing** | `router` classifies `classes` / `recital` / `out_of_scope` |
-| **Per-shelf hybrid retrieval** | Chroma (dense) + BM25 (sparse) via `EnsembleRetriever`, filtered by `doc_type` |
+| **Per-shelf hybrid retrieval** | In-memory vector store (dense) + BM25 (sparse) via `EnsembleRetriever`, one store per `doc_type` |
 | **Grounding guard** | `generate` emits `NOT_IN_DOCS` → softened human hand-off |
 | **Conversation memory** | LangGraph `MemorySaver` checkpointer, keyed by session `thread_id` |
 | **Observability** | LangSmith auto-tracing (config-only, no code) |
@@ -34,8 +35,8 @@ for chat, `Qwen3-Embedding-8B` for embeddings.
 ```
 streamlit_app.py                 # entry point: website + chat UI
 tda_pipeline.py                  # the RAG pipeline (importable)
-trupti_dance_academy_corpus.txt  # classes corpus
-trupti_recital_corpus_2026.txt   # recital corpus
+tda_corpus.txt                   # classes corpus
+tda_recital_corpus_2026.txt      # recital corpus
 requirements.txt                 # pinned dependencies
 .gitignore                       # keeps secrets out of git
 ```
@@ -125,9 +126,8 @@ through Nebius rather than OpenAI.
 
 ## Notes & limits
 
-- **Free-tier memory (~1 GB):** the corpus is tiny, but `chromadb` + LangChain are memory-heavy
-  to load. If the app crashes on boot with a resource error, swapping Chroma for a lighter
-  in-memory vector store is the fix.
+- **Free-tier memory (~1 GB):** the corpus is tiny and dense retrieval uses langchain-core's
+  in-memory vector store (no chromadb), so memory stays light and boot is fast.
 - **Memory is half-built by design:** the checkpointer persists per-conversation state, but true
   follow-up handling ("and the recital fee?") needs a `condense_question` step — the next planned
   enhancement.

@@ -9,11 +9,9 @@ langchain-community==0.4.2
 langchain-core==1.4.6
 langchain-text-splitters==1.1.2
 langchain-openai==1.3.0
-langchain-chroma==1.1.0
 langchain-classic==1.0.8
 
-# Vector store + sparse retrieval
-chromadb==1.5.9
+# Sparse retrieval (dense uses langchain-core's in-memory store — no chromadb)
 rank-bm25==0.2.2
 
 # Graph orchestration
