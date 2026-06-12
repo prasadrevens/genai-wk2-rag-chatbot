@@ -1,5 +1,5 @@
 """
-streamlit_app.py — Trupti Dance Academy support chatbot (redesigned UI).
+streamlit_app.py —  Dance Academy support chatbot (redesigned UI).
 
 Dark-navy / cyan terminal aesthetic. Wraps the RAG pipeline in tda_pipeline.py
 (build_app + answer) with per-session conversational memory.
@@ -31,7 +31,7 @@ for _key in ("OPENAI_API_KEY", "LANGSMITH_API_KEY", "LANGSMITH_TRACING",
 from tda_pipeline import build_app, answer  # noqa: E402
 
 # --------------------------------------------------------------------------- #
-# Real Trupti Dance Academy content (replaces the mockup's placeholder text).
+# Real Dance Academy content (replaces the mockup's placeholder text).
 # --------------------------------------------------------------------------- #
 ACADEMY = "Dance Academy"
 CLASSES = ["Kids Dance (4–7)", "Kids Dance (7–12)", "Teen Dance (12–18)",
@@ -40,7 +40,7 @@ LOCATION = "Melissa Community Center · Melissa, TX"
 LANGUAGES = "English · हिन्दी"
 
 GREETING = ("Hi 👋 I'm the Dance Academy assistant. Ask me about classes, "
-            "schedules, fees, policies, or the recital — in English, Hindi, or Telugu.")
+            "schedules, fees, policies, or the recital — in English, Hindi")
 
 SUGGESTIONS = [
     "What classes do you offer?",
