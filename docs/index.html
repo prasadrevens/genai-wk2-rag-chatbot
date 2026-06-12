@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trupti Dance Academy — RAG Chatbot Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --page:#EEF2F8; --canvas:#FFFFFF; --card:#FFFFFF;
+    --ink:#1E293B; --ink2:#475569; --muted:#64748B; --faint:#94A3B8;
+    --line:#E2E8F0; --line2:#CBD5E1;
+    --sans:'Inter',-apple-system,system-ui,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+
+    --blue:#2563EB;   --blue-bg:#EFF4FF;   --blue-br:#BFD3F6;
+    --green:#16A34A;  --green-bg:#ECFDF3;  --green-br:#BBE9CC;
+    --cyan:#0891B2;   --cyan-bg:#ECFCFF;   --cyan-br:#B2E7F0;
+    --violet:#7C3AED; --violet-bg:#F5F1FE; --violet-br:#DDD0FA;
+    --indigo:#4F46E5; --indigo-bg:#EEF0FE; --indigo-br:#CBCFF8;
+    --amber:#D97706;  --amber-bg:#FEF6E7; --amber-br:#F5DDA8;
+    --rose:#E11D48;   --rose-bg:#FFF1F4;  --rose-br:#F7C6D2;
+    --slate:#475569;  --slate-bg:#F1F5F9; --slate-br:#D8E0EA;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--page);font-family:var(--sans);color:var(--ink);
+       padding:30px 22px 44px;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1180px;margin:0 auto;}
+
+  /* ---------- title ---------- */
+  .title{background:var(--canvas);border:1px solid var(--line);border-radius:16px;
+         padding:18px 26px;text-align:center;box-shadow:0 1px 2px rgba(15,23,42,.05);}
+  .title h1{margin:0;font-size:1.5rem;font-weight:700;letter-spacing:-.4px;}
+  .title h1 .em{color:var(--indigo);}
+  .title .stack{margin-top:7px;font-family:var(--mono);font-size:.72rem;color:var(--muted);letter-spacing:.2px;}
+
+  /* ---------- vertical connector ---------- */
+  .down{display:flex;flex-direction:column;align-items:center;gap:2px;margin:9px 0;}
+  .down .l{width:2px;height:16px;background:var(--line2);}
+  .down .a{color:var(--line2);font-size:1rem;line-height:.6;margin-top:-4px;}
+  .down .lbl{font-family:var(--mono);font-size:.66rem;color:var(--faint);
+             background:var(--page);padding:0 8px;letter-spacing:.4px;}
+
+  /* ---------- section band ---------- */
+  .band{background:var(--canvas);border:1px solid var(--line);border-radius:16px;
+        overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.05);}
+  .band-h{padding:9px 18px;font-family:var(--mono);font-size:.74rem;font-weight:600;
+          letter-spacing:1.2px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;}
+  .band-h .sub{font-weight:400;text-transform:none;letter-spacing:.2px;opacity:.8;font-size:.7rem;}
+  .band-body{padding:16px;}
+
+  /* color variants for band headers */
+  .v-blue .band-h{background:var(--blue-bg);color:var(--blue);border-bottom:1px solid var(--blue-br);}
+  .v-green .band-h{background:var(--green-bg);color:var(--green);border-bottom:1px solid var(--green-br);}
+  .v-cyan .band-h{background:var(--cyan-bg);color:var(--cyan);border-bottom:1px solid var(--cyan-br);}
+  .v-violet .band-h{background:var(--violet-bg);color:var(--violet);border-bottom:1px solid var(--violet-br);}
+  .v-indigo .band-h{background:var(--indigo-bg);color:var(--indigo);border-bottom:1px solid var(--indigo-br);}
+  .v-amber .band-h{background:var(--amber-bg);color:var(--amber);border-bottom:1px solid var(--amber-br);}
+  .v-rose .band-h{background:var(--rose-bg);color:var(--rose);border-bottom:1px solid var(--rose-br);}
+  .v-slate .band-h{background:var(--slate-bg);color:var(--slate);border-bottom:1px solid var(--slate-br);}
+
+  /* ---------- two-column split inside a row ---------- */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:880px){.split{grid-template-columns:1fr;}}
+
+  .group{border:1px solid var(--line);border-radius:13px;padding:13px;background:#FBFCFE;}
+  .group.dashed{border-style:dashed;border-color:var(--line2);background:#FAFBFD;}
+  .group-h{font-family:var(--mono);font-size:.68rem;font-weight:600;color:var(--ink2);
+           letter-spacing:.8px;margin-bottom:11px;text-transform:uppercase;}
+
+  /* ---------- flow row of cards ---------- */
+  .flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;}
+  .flow .arrow{display:flex;align-items:center;color:var(--line2);font-size:1.1rem;padding:0 5px;}
+
+  /* ---------- card ---------- */
+  .card{flex:1 1 0;min-width:135px;border:1px solid var(--line);border-radius:12px;
+        padding:11px 12px;background:var(--card);position:relative;}
+  .card.tint-blue{border-top:3px solid var(--blue);}
+  .card.tint-green{border-top:3px solid var(--green);}
+  .card.tint-cyan{border-top:3px solid var(--cyan);}
+  .card.tint-violet{border-top:3px solid var(--violet);}
+  .card.tint-indigo{border-top:3px solid var(--indigo);}
+  .card.tint-amber{border-top:3px solid var(--amber);}
+  .card.tint-rose{border-top:3px solid var(--rose);}
+  .card.tint-slate{border-top:3px solid var(--slate);}
+  .card.plan{border-style:dashed;border-color:var(--line2);background:#FAFBFD;}
+  .card.plan.tint-slate{border-top-style:solid;}
+
+  .card .ct{font-family:var(--mono);font-size:.82rem;font-weight:600;color:var(--ink);margin-bottom:5px;}
+  .card .cd{font-size:.74rem;color:var(--muted);line-height:1.5;}
+  .card .cd code{font-family:var(--mono);font-size:.96em;color:var(--ink2);background:#F1F5F9;padding:0 3px;border-radius:3px;}
+  .nodeno{font-family:var(--mono);font-size:.62rem;color:var(--faint);margin-top:7px;letter-spacing:.4px;}
+
+  /* status dot / pill */
+  .st{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.64rem;
+      margin-top:8px;font-weight:500;letter-spacing:.3px;}
+  .st .dot{width:7px;height:7px;border-radius:50%;}
+  .st.active{color:var(--green);} .st.active .dot{background:var(--green);}
+  .st.planned{color:var(--amber);} .st.planned .dot{background:transparent;border:1.5px solid var(--amber);}
+
+  /* badges */
+  .badge{display:inline-block;font-family:var(--mono);font-size:.64rem;font-weight:500;
+         padding:2px 8px;border-radius:999px;letter-spacing:.3px;}
+  .badge.llm{background:var(--indigo-bg);color:var(--indigo);border:1px solid var(--indigo-br);}
+  .badge.emb{background:var(--cyan-bg);color:var(--cyan);border:1px solid var(--cyan-br);}
+
+  /* three-up grid for cross-cutting */
+  .triple{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+  @media(max-width:880px){.triple{grid-template-columns:1fr;}}
+
+  /* legend + footer */
+  .legend{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin:16px 0 0;
+          font-family:var(--mono);font-size:.68rem;color:var(--muted);}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .legend .dot{width:8px;height:8px;border-radius:50%;}
+  .footer{text-align:center;margin-top:18px;font-family:var(--mono);font-size:.68rem;color:var(--faint);line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="title">
+    <h1>🩰 Trupti Dance Academy — Multilingual <span class="em">RAG Chatbot</span> · System Architecture</h1>
+    <div class="stack">LangGraph · LangChain 1.x · Nebius (Llama-3.3-70B · Qwen3-Embedding-8B) · InMemory + BM25 hybrid · LangSmith · RAGAS · Streamlit</div>
+  </div>
+
+  <div class="down"><div class="l"></div><div class="a">▼</div></div>
+
+  <!-- ============ DATA SOURCES ============ -->
+  <div class="band v-blue">
+    <div class="band-h"><span>Knowledge Sources</span><span class="sub">tagged corpora → metadata-routed shelves</span></div>
+    <div class="band-body">
+      <div class="split">
+        <div class="group">
+          <div class="group-h">◇ Current corpora</div>
+          <div class="flow">
+            <div class="card tint-blue">
+              <div class="ct">tda_corpus.txt</div>
+              <div class="cd">Classes · FAQ · Terms<br><code>doc_type=classes</code><br><code>event_status=current</code></div>
+              <div class="st active"><span class="dot"></span>Active</div>
+            </div>
+            <div class="card tint-blue">
+              <div class="ct">tda_recital_<br>corpus_2026.txt</div>
+              <div class="cd">First recital, May 30 2026<br><code>doc_type=recital</code><br><code>event_status=completed</code></div>
+              <div class="st active"><span class="dot"></span>Active</div>
+            </div>
+          </div>
+        </div>
+        <div class="group dashed">
+          <div class="group-h">◇ Future sources — planned</div>
+          <div class="flow">
+            <div class="card plan">
+              <div class="ct">Next recital</div>
+              <div class="cd"><code>event_status=upcoming</code> corpus, kept separate so past/future never blur</div>
+              <div class="st planned"><span class="dot"></span>Planned</div>
+            </div>
+            <div class="card plan">
+              <div class="ct">Schedule / FAQ sync</div>
+              <div class="cd">Live class & instructor updates, replacing <code>[VERIFY]</code> placeholders</div>
+              <div class="st planned"><span class="dot"></span>Planned</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="down"><div class="l"></div><div class="lbl">read · strip · clean · split · tag</div><div class="a">▼</div></div>
+
+  <!-- ============ INGESTION ============ -->
+  <div class="band v-green">
+    <div class="band-h"><span>Ingestion Pipeline</span><span class="sub">_load_chunks() · runs once at build_app()</span></div>
+    <div class="band-body">
+      <div class="flow">
+        <div class="card tint-green">
+          <div class="ct">load corpora</div>
+          <div class="cd">Read both <code>.txt</code> files (UTF-8)</div>
+          <div class="nodeno">step 1 of 5</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="card tint-green">
+          <div class="ct">strip note</div>
+          <div class="cd">Drop the indexing-note block before chunking</div>
+          <div class="nodeno">step 2 of 5</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="card tint-green">
+          <div class="ct">clean chunks</div>
+          <div class="cd">Remove divider lines, collapse blank runs</div>
+          <div class="nodeno">step 3 of 5</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="card tint-green">
+          <div class="ct">split</div>
+          <div class="cd">Recursive splitter · <code>1000</code> / overlap <code>100</code> · breaks on <code>=== </code></div>
+          <div class="nodeno">step 4 of 5</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="card tint-green">
+          <div class="ct">tag metadata</div>
+          <div class="cd"><code>{doc_type, year, event_status}</code> on every chunk</div>
+          <div class="nodeno">step 5 of 5</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="down"><div class="l"></div><div class="lbl">2 shelves: classes · recital</div><div class="a">▼</div></div>
+
+  <!-- ============ RETRIEVAL STORES ============ -->
+  <div class="band v-cyan">
+    <div class="band-h"><span>Retrieval Stores</span><span class="sub">one hybrid store per shelf — routing replaces metadata filtering</span></div>
+    <div class="band-body">
+      <div class="split">
+        <div class="group">
+          <div class="group-h">◇ Per-shelf hybrid retriever — active</div>
+          <div class="flow">
+            <div class="card tint-cyan">
+              <div class="ct">dense</div>
+              <div class="cd">InMemoryVectorStore<br><span class="badge emb">Qwen3-Embedding-8B</span><br><code>check_embedding_ctx_length=False</code></div>
+            </div>
+            <div class="arrow">+</div>
+            <div class="card tint-cyan">
+              <div class="ct">sparse</div>
+              <div class="cd">BM25Retriever<br>keyword match</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="card tint-cyan">
+              <div class="ct">Ensemble</div>
+              <div class="cd">weights <code>0.5 / 0.5</code><br>top-k = <code>4</code></div>
+            </div>
+          </div>
+          <div class="st active" style="margin-left:2px;"><span class="dot"></span>Active · dropped Chroma → InMemory (protobuf + 1 GB ceiling on Cloud)</div>
+        </div>
+        <div class="group dashed">
+          <div class="group-h">◇ Graph RAG — planned</div>
+          <div class="flow">
+            <div class="card plan">
+              <div class="ct">Neo4j knowledge graph</div>
+              <div class="cd">Cypher entities / relations for multi-hop questions. The “graph” retrieve label is aspirational — only hybrid + routing exist today.</div>
+              <div class="st planned"><span class="dot"></span>Planned</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="down"><div class="l"></div><div class="a">▼</div></div>
+
+  <!-- ============ REQUEST PIPELINE ============ -->
+  <div class="band v-indigo">
+    <div class="band-h"><span>Request Pipeline — LangGraph StateGraph</span>
+      <span class="sub"><span class="badge llm">LLM: Llama-3.3-70B-Instruct · temp 0 · Nebius</span></span></div>
+    <div class="band-body">
+      <div class="flow">
+        <div class="card tint-indigo">
+          <div class="ct">detect_translate</div>
+          <div class="cd">Script-gated: Latin → instant (no LLM); Devanagari/Telugu → translate to English</div>
+          <div class="nodeno">entry</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="card tint-indigo">
+          <div class="ct">condense_question</div>
+          <div class="cd">Turn 1 skips; later turns rewrite to standalone using history</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="card tint-indigo">
+          <div class="ct">router</div>
+          <div class="cd">Classify <code>classes</code> · <code>recital</code> · <code>out_of_scope</code></div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="card tint-indigo">
+          <div class="ct">retrieve</div>
+          <div class="cd">Hybrid store for the chosen shelf (k=4)</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="card tint-indigo">
+          <div class="ct">generate</div>
+          <div class="cd">Answer from context only · <code>NOT_IN_DOCS</code> sentinel guard</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="card tint-indigo">
+          <div class="ct">translate_back</div>
+          <div class="cd">Reply in user's language · append turn to history</div>
+          <div class="nodeno">exit</div>
+        </div>
+      </div>
+      <div style="margin-top:13px;display:flex;gap:12px;flex-wrap:wrap;">
+        <div class="card tint-amber" style="flex:1 1 100%;border-top-color:var(--amber);">
+          <div class="cd"><b style="font-family:var(--mono);font-weight:600;color:var(--amber);">conditional edges</b> &nbsp;·&nbsp;
+          <code>router</code> → retrieve <i>or</i> escalate (out_of_scope) &nbsp;·&nbsp;
+          <code>generate</code> → translate_back <i>or</i> <b>escalate</b> (NOT_IN_DOCS) → softened human hand-off in the user's language</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="down"><div class="l"></div><div class="lbl">wraps every request</div><div class="a">▼</div></div>
+
+  <!-- ============ CROSS-CUTTING ============ -->
+  <div class="band v-amber">
+    <div class="band-h"><span>Memory · Observability · Evaluation</span><span class="sub">cross-cutting concerns</span></div>
+    <div class="band-body">
+      <div class="triple">
+        <div class="card tint-amber">
+          <div class="ct">Memory</div>
+          <div class="cd">MemorySaver checkpointer keyed by <code>thread_id</code>. <code>history</code> channel accumulates <code>(role, content)</code> via <code>operator.add</code> — feeds condense_question.</div>
+          <div class="st active"><span class="dot"></span>Active</div>
+        </div>
+        <div class="card tint-amber">
+          <div class="ct">Observability</div>
+          <div class="cd">LangSmith tracing on every node — latency + token spans. Pinpointed the 163 s cold-start in detect_translate.</div>
+          <div class="st active"><span class="dot"></span>Active</div>
+        </div>
+        <div class="card tint-amber">
+          <div class="ct">Evaluation</div>
+          <div class="cd">RAGAS: faithfulness · answer relevancy · context precision / recall. Golden set 12 + 3. Judge: Llama-3.3-70B. Separate venv (Py 3.12).</div>
+          <div class="st active"><span class="dot"></span>Active</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="down"><div class="l"></div><div class="a">▼</div></div>
+
+  <!-- ============ CHANNELS ============ -->
+  <div class="band v-rose">
+    <div class="band-h"><span>Channels &amp; Roadmap</span><span class="sub">how users reach the bot</span></div>
+    <div class="band-body">
+      <div class="split">
+        <div class="group">
+          <div class="group-h">◇ Current channel</div>
+          <div class="flow">
+            <div class="card tint-rose">
+              <div class="ct">Streamlit web chat</div>
+              <div class="cd"><code>streamlit_app.py</code> · suggestion chips · per-session <code>thread_id</code> · route + language caption · English / हिन्दी / తెలుగు</div>
+              <div class="st active"><span class="dot"></span>Active</div>
+            </div>
+          </div>
+        </div>
+        <div class="group dashed">
+          <div class="group-h">◇ Roadmap — planned</div>
+          <div class="flow">
+            <div class="card plan tint-slate">
+              <div class="ct">Retrieval upgrades</div>
+              <div class="cd">multi_query · re_rank for recall + precision</div>
+              <div class="st planned"><span class="dot"></span>Planned</div>
+            </div>
+            <div class="card plan tint-slate">
+              <div class="ct">More channels</div>
+              <div class="cd">Gmail · WhatsApp hand-offs</div>
+              <div class="st planned"><span class="dot"></span>Planned</div>
+            </div>
+            <div class="card plan tint-slate">
+              <div class="ct">Warm-up ping</div>
+              <div class="cd">Boot-time call to kill cold-start</div>
+              <div class="st planned"><span class="dot"></span>Planned</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot" style="background:var(--green);"></span>Active — built &amp; verified</span>
+    <span><span class="dot" style="background:transparent;border:1.5px solid var(--amber);"></span>Planned — on the roadmap</span>
+    <span><span class="dot" style="background:var(--indigo);"></span>LangGraph node</span>
+    <span><span class="dot" style="background:var(--cyan);"></span>Retrieval</span>
+  </div>
+
+  <div class="footer">
+    Trupti Dance Academy · GenAI Week 2 · Track 2 (code-heavy LangChain + LangGraph)<br>
+    detect_translate → condense_question → router → retrieve → generate → (escalate?) → translate_back
+  </div>
+
+</div>
+</body>
+</html>
