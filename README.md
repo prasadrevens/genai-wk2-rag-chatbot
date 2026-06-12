@@ -1,4 +1,5 @@
 #Dance Academy — RAG Chatbot Assistant
+[View HTML Report](docs/index.html)
 
 A multilingual customer-support assistant for [Dance Academy]
 (a Bollywood / BollyX studio in Melissa, TX), built as a Streamlit website with the chatbot
