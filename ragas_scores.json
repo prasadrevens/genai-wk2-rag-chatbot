@@ -1,0 +1,87 @@
+{
+  "averages": {
+    "faithfulness": 0.9091,
+    "answer_relevancy": 0.7367,
+    "llm_context_precision_with_reference": 0.8232,
+    "context_recall": 1.0
+  },
+  "per_question": [
+    {
+      "id": "q01_teen_time",
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.9607,
+      "llm_context_precision_with_reference": 0.2,
+      "context_recall": 1.0
+    },
+    {
+      "id": "q02_class_price",
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.6916,
+      "llm_context_precision_with_reference": 1.0,
+      "context_recall": 1.0
+    },
+    {
+      "id": "q03_attire",
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.7644,
+      "llm_context_precision_with_reference": 1.0,
+      "context_recall": 1.0
+    },
+    {
+      "id": "q04_experience",
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.6806,
+      "llm_context_precision_with_reference": 0.7,
+      "context_recall": 1.0
+    },
+    {
+      "id": "q05_refund_trap_classes",
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.6712,
+      "llm_context_precision_with_reference": 0.8667,
+      "context_recall": 1.0
+    },
+    {
+      "id": "q06_academy_cancel",
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.9999,
+      "llm_context_precision_with_reference": 0.7556,
+      "context_recall": 1.0
+    },
+    {
+      "id": "q07_trial",
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.7556,
+      "llm_context_precision_with_reference": 0.7,
+      "context_recall": 1.0
+    },
+    {
+      "id": "q08_bollyx",
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8677,
+      "llm_context_precision_with_reference": 1.0,
+      "context_recall": 1.0
+    },
+    {
+      "id": "q09_recital_when_trap",
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.0,
+      "llm_context_precision_with_reference": 1.0,
+      "context_recall": 1.0
+    },
+    {
+      "id": "q10_refund_trap_recital",
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.803,
+      "llm_context_precision_with_reference": 1.0,
+      "context_recall": 1.0
+    },
+    {
+      "id": "q11_external_performer",
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.9087,
+      "llm_context_precision_with_reference": 0.8333,
+      "context_recall": 1.0
+    }
+  ]
+}

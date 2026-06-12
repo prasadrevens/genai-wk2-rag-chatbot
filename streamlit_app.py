@@ -1,240 +1,230 @@
 """
-streamlit_app.py — Trupti Dance Academy site + RAG assistant (split layout).
+streamlit_app.py — Trupti Dance Academy support chatbot (redesigned UI).
+
+Dark-navy / cyan terminal aesthetic. Wraps the RAG pipeline in tda_pipeline.py
+(build_app + answer) with per-session conversational memory.
 
 Run:
     streamlit run streamlit_app.py
 
-Needs (same folder):
-    tda_pipeline.py
-    trupti_dance_academy_corpus.txt
-    trupti_recital_corpus_2026.txt
-    .env  with  OPENAI_API_KEY=<your Nebius key>
+Secrets (Streamlit Cloud) or .env (local):
+    OPENAI_API_KEY (Nebius key), LANGSMITH_API_KEY, LANGSMITH_TRACING, LANGSMITH_PROJECT
 """
 
-import uuid
 import os
+import uuid
+
 import streamlit as st
 
 # --------------------------------------------------------------------------- #
-# Credentials & observability.
-# Bridge Streamlit Cloud "Secrets" -> environment variables, so both the
-# pipeline (reads os.environ["OPENAI_API_KEY"]) and LangSmith auto-tracing
-# (reads LANGSMITH_* env vars) work in the cloud AND locally via .env.
-# This MUST run before `import tda_pipeline`.
+# Secrets -> env  (MUST run before importing the pipeline so build_app sees keys)
+# Local dev uses .env (loaded inside tda_pipeline); on Cloud, bridge st.secrets.
 # --------------------------------------------------------------------------- #
-def _bridge_secrets_to_env():
-    keys = ["OPENAI_API_KEY", "LANGSMITH_API_KEY", "LANGSMITH_TRACING",
-            "LANGSMITH_PROJECT", "LANGSMITH_ENDPOINT"]
+for _key in ("OPENAI_API_KEY", "LANGSMITH_API_KEY", "LANGSMITH_TRACING",
+             "LANGSMITH_PROJECT", "LANGSMITH_ENDPOINT"):
     try:
-        for k in keys:
-            if k not in os.environ and k in st.secrets:
-                os.environ[k] = str(st.secrets[k])
+        if _key in st.secrets and _key not in os.environ:
+            os.environ[_key] = str(st.secrets[_key])
     except Exception:
-        # No secrets.toml locally — fine, .env / load_dotenv covers local runs.
-        pass
+        pass  # no secrets.toml locally — .env handles it
 
-
-_bridge_secrets_to_env()
-
-import tda_pipeline
-
-st.set_page_config(page_title="Trupti Dance Academy", page_icon="✦", layout="wide")
+from tda_pipeline import build_app, answer  # noqa: E402
 
 # --------------------------------------------------------------------------- #
-# Styling — clean, minimal, modern. Typography-forward, restrained palette.
+# Real Trupti Dance Academy content (replaces the mockup's placeholder text).
+# --------------------------------------------------------------------------- #
+ACADEMY = "Dance Academy"
+CLASSES = ["Kids Dance (4–7)", "Kids Dance (7–12)", "Teen Dance (12–18)",
+           "Ladies Dance (18+)", "BollyX Fitness (16+)"]
+LOCATION = "Melissa Community Center · Melissa, TX"
+LANGUAGES = "English · हिन्दी"
+
+GREETING = ("Hi 👋 I'm the Dance Academy assistant. Ask me about classes, "
+            "schedules, fees, policies, or the recital — in English, Hindi, or Telugu.")
+
+SUGGESTIONS = [
+    "What classes do you offer?",
+    "How much are classes?",
+    "When is the recital?",
+]
+
+st.set_page_config(page_title=f"{ACADEMY} — Assistant",
+                   page_icon="🩰", layout="wide",
+                   initial_sidebar_state="expanded")
+
+# --------------------------------------------------------------------------- #
+# Styling — dark navy + cyan, JetBrains Mono (display/labels) + Inter (body).
 # --------------------------------------------------------------------------- #
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
-:root {
-    --ink: #18181b;
-    --muted: #6b7280;
-    --line: #ececf0;
-    --card: #f8f8fa;
-    --accent: #a4133c;     /* restrained deep rose */
-    --bg: #ffffff;
+:root{
+  --bg:#0A0E27; --panel:#0F1533; --panel-2:#131B3D;
+  --border:#1E2A52; --border-cyan:#2BD4E8;
+  --accent:#5EE7FB; --accent-dim:#22D3EE;
+  --text:#E6EAF5; --muted:#8B93B8; --faint:#5A6291;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --sans:'Inter',-apple-system,system-ui,sans-serif;
 }
+.stApp{background:var(--bg);}
+#MainMenu,header,footer{visibility:hidden;}
+.block-container{padding-top:2.2rem;max-width:880px;}
 
-html, body, [class*="css"] { font-family: 'Inter', sans-serif; color: var(--ink); }
-.block-container { padding-top: 2.2rem; padding-bottom: 2rem; max-width: 1180px; }
-#MainMenu, footer, header { visibility: hidden; }
+/* ---------- sidebar ---------- */
+section[data-testid="stSidebar"]{background:var(--bg);border-right:1px solid var(--border);}
+section[data-testid="stSidebar"] .block-container{padding-top:1.6rem;}
+.brand{font-family:var(--mono);font-weight:700;font-size:1.45rem;letter-spacing:-.5px;color:var(--text);}
+.brand .accent{color:var(--accent);}
+.tagline{font-family:var(--mono);font-size:.72rem;color:var(--faint);margin:.15rem 0 1.2rem;letter-spacing:.5px;}
+.rule{height:1px;background:var(--border);margin:0 0 1.3rem;}
+.card{border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;margin-bottom:.85rem;background:var(--panel);}
+.card-h{font-family:var(--mono);font-size:.72rem;font-weight:600;color:var(--accent);letter-spacing:1px;margin-bottom:.5rem;}
+.card-b{font-family:var(--sans);font-size:.86rem;color:var(--text);line-height:1.6;}
+.card-b .dim{color:var(--muted);}
+.copyright{font-family:var(--mono);font-size:.68rem;color:var(--faint);margin-top:1.1rem;}
 
-.tda-brand { font-size: .82rem; letter-spacing: .22em; text-transform: uppercase;
-    color: var(--accent); font-weight: 600; margin-bottom: .4rem; }
-.tda-hero-h { font-size: 3.1rem; line-height: 1.05; font-weight: 700;
-    letter-spacing: -.02em; margin: 0 0 1rem 0; }
-.tda-hero-h .em { color: var(--accent); }
-.tda-hero-p { font-size: 1.12rem; color: var(--muted); max-width: 30rem;
-    line-height: 1.6; margin-bottom: 1.6rem; }
+/* ---------- hero ---------- */
+.hero{font-family:var(--mono);font-weight:700;font-size:2.55rem;line-height:1.1;text-align:center;color:var(--text);letter-spacing:-1px;margin:.2rem 0 .1rem;}
+.hero .accent{color:var(--accent);}
+.sub{font-family:var(--mono);font-size:.92rem;color:var(--muted);text-align:center;margin:0 auto 1.4rem;max-width:600px;line-height:1.5;}
 
-.tda-section-label { font-size: .78rem; letter-spacing: .18em; text-transform: uppercase;
-    color: var(--muted); font-weight: 600; margin: 2.6rem 0 1rem 0; }
-.tda-h2 { font-size: 1.7rem; font-weight: 700; letter-spacing: -.01em; margin: 0 0 1rem 0; }
+/* ---------- suggestion chips (st.button) ---------- */
+div[data-testid="stHorizontalBlock"] .stButton>button{
+  width:100%;font-family:var(--mono);font-size:.82rem;font-weight:500;
+  color:var(--accent);background:transparent;border:1px solid var(--border-cyan);
+  border-radius:999px;padding:.5rem .9rem;transition:all .15s ease;}
+div[data-testid="stHorizontalBlock"] .stButton>button:hover{
+  background:rgba(94,231,251,.10);border-color:var(--accent);color:var(--accent);}
 
-.tda-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .9rem; }
-.tda-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px;
-    padding: 1.15rem 1.25rem; }
-.tda-card h3 { font-size: 1.02rem; font-weight: 600; margin: 0 0 .25rem 0; }
-.tda-card p { font-size: .9rem; color: var(--muted); margin: 0; line-height: 1.5; }
+/* ---------- chat panel ---------- */
+.panel-top{border:1px solid var(--border-cyan);border-bottom:none;
+  border-radius:16px 16px 0 0;background:var(--panel);padding:1.1rem 1.3rem .4rem;
+  box-shadow:0 0 24px rgba(43,212,232,.07);}
+.panel-title{font-family:var(--mono);font-size:.78rem;font-weight:700;color:var(--accent);letter-spacing:1.5px;}
+.panel-divider{height:1px;background:var(--border);margin:.7rem 0 .2rem;}
 
-.tda-recital { background: linear-gradient(135deg, #1f1320 0%, #3a1228 100%);
-    color: #fff; border-radius: 20px; padding: 2rem 2.2rem; margin-top: .5rem; }
-.tda-recital .k { font-size: .78rem; letter-spacing: .18em; text-transform: uppercase;
-    color: #f3b4c8; font-weight: 600; }
-.tda-recital h2 { font-size: 1.9rem; font-weight: 700; margin: .5rem 0 .6rem 0; }
-.tda-recital p { color: #e7d7df; line-height: 1.6; margin: 0; max-width: 34rem; }
-.tda-stats { display: flex; gap: 2.4rem; margin-top: 1.4rem; }
-.tda-stats .n { font-size: 1.7rem; font-weight: 700; }
-.tda-stats .l { font-size: .8rem; color: #d9b9c6; }
+/* chat bubbles via st.chat_message */
+div[data-testid="stChatMessage"]{background:transparent;padding:.35rem 0;}
+.stChatMessage [data-testid="stChatMessageContent"]{font-family:var(--sans);}
+/* assistant bubble */
+div[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) [data-testid="stChatMessageContent"]{
+  background:var(--panel-2);border:1px solid var(--border);border-radius:14px;
+  padding:.8rem 1rem;color:var(--text);}
+/* user bubble */
+div[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) [data-testid="stChatMessageContent"]{
+  background:var(--accent);border-radius:14px;padding:.8rem 1rem;color:#06243a;font-weight:500;}
 
-.tda-about p { color: var(--muted); line-height: 1.7; font-size: 1.0rem; max-width: 38rem; }
-.tda-foot { color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line);
-    margin-top: 2.6rem; padding-top: 1.2rem; }
+/* meta caption under assistant answers */
+.meta{font-family:var(--mono);font-size:.66rem;color:var(--faint);margin:.1rem 0 .3rem 3rem;letter-spacing:.5px;}
 
-/* chat rail */
-.tda-chat-head { font-size: 1.15rem; font-weight: 700; margin-bottom: .2rem; }
-.tda-chat-sub { font-size: .85rem; color: var(--muted); line-height: 1.5; margin-bottom: .8rem; }
-.tda-chip { display: inline-block; }
-div[data-testid="stChatMessage"] { background: var(--card); border-radius: 12px; }
+/* ---------- input ---------- */
+div[data-testid="stChatInput"]{border:1px solid var(--border-cyan);border-radius:14px;background:var(--panel);}
+div[data-testid="stChatInput"] textarea{font-family:var(--sans);color:var(--text);}
+div[data-testid="stChatInput"] textarea::placeholder{color:var(--faint);}
 </style>
 """, unsafe_allow_html=True)
 
-
 # --------------------------------------------------------------------------- #
-# Pipeline — built once, cached across reruns.
+# App + session state
 # --------------------------------------------------------------------------- #
-@st.cache_resource(show_spinner="Warming up the studio assistant…")
+@st.cache_resource(show_spinner="Warming up the studio… (embedding corpus)")
 def get_app():
-    return tda_pipeline.build_app()
+    return build_app()
 
-
-if "messages" not in st.session_state:
-    st.session_state.messages = []
 if "thread_id" not in st.session_state:
-    st.session_state.thread_id = uuid.uuid4().hex
-if "pending" not in st.session_state:
-    st.session_state.pending = None
-
-
-def submit_question(q: str):
-    st.session_state.pending = q
-
+    st.session_state.thread_id = f"web-{uuid.uuid4()}"   # stable -> memory works
+if "messages" not in st.session_state:
+    st.session_state.messages = [{"role": "assistant", "content": GREETING, "meta": None}]
 
 # --------------------------------------------------------------------------- #
-# Layout: site (left, wider) | assistant (right)
+# Sidebar
 # --------------------------------------------------------------------------- #
-left, right = st.columns([1.7, 1], gap="large")
-
-# ---------------------------- LEFT: the website ---------------------------- #
-with left:
-    st.markdown('<div class="tda-brand">Trupti Dance Academy · Melissa, TX</div>',
+with st.sidebar:
+    st.markdown(f'<div class="brand">🩰 Dance<span class="accent">Academy</span></div>',
                 unsafe_allow_html=True)
-    st.markdown(
-        '<div class="tda-hero-h">Where every age finds its <span class="em">rhythm</span>.</div>',
-        unsafe_allow_html=True)
-    st.markdown(
-        '<div class="tda-hero-p">Bollywood and BollyX dance for kids, teens, and adults — '
-        'energetic classes, a welcoming community, and an annual recital to shine on stage.</div>',
-        unsafe_allow_html=True)
-
-    st.markdown('<div class="tda-section-label">Programs</div>', unsafe_allow_html=True)
-    st.markdown('<div class="tda-h2">Classes for every age</div>', unsafe_allow_html=True)
-    st.markdown("""
-    <div class="tda-grid">
-      <div class="tda-card"><h3>Parent &amp; Child</h3><p>Ages 2–3 · move and bond together</p></div>
-      <div class="tda-card"><h3>Kids</h3><p>Ages 4–6 and 7–8 · playful foundations</p></div>
-      <div class="tda-card"><h3>Girls Group</h3><p>Ages 9–15 · technique and choreography</p></div>
-      <div class="tda-card"><h3>Teen Dance</h3><p>Ages 12–18 · Fridays 5–6 PM</p></div>
-      <div class="tda-card"><h3>Ladies Group</h3><p>Ages 15+ · Bollywood for all levels</p></div>
-      <div class="tda-card"><h3>BollyX Fitness</h3><p>Adults · dance-cardio workout</p></div>
-    </div>
-    """, unsafe_allow_html=True)
-    st.caption("Ask the assistant on the right for exact schedules, pricing, and how to enroll.")
-
-    st.markdown('<div class="tda-section-label">On stage</div>', unsafe_allow_html=True)
-    st.markdown("""
-    <div class="tda-recital">
-      <div class="k">Our First Annual Recital</div>
-      <h2>Rhythm on stage — May 30, 2026</h2>
-      <p>Our very first recital brought the whole studio together for an evening of group and
-      solo performances, from our littlest dancers to our ladies group — to a full, cheering house.</p>
-      <div class="tda-stats">
-        <div><div class="n">60+</div><div class="l">Performers</div></div>
-        <div><div class="n">5</div><div class="l">Age categories</div></div>
-        <div><div class="n">6–8 PM</div><div class="l">An unforgettable evening</div></div>
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown('<div class="tda-section-label">About</div>', unsafe_allow_html=True)
-    st.markdown('<div class="tda-h2">Dance, fitness, and fun in Melissa</div>',
+    st.markdown('<div class="tagline">// where Bollywood comes alive</div>',
                 unsafe_allow_html=True)
-    st.markdown(
-        '<div class="tda-about"><p>Trupti Dance Academy is a Bollywood and BollyX studio in '
-        'Melissa, Texas, welcoming dancers of every age and ability. Whether your little one is '
-        'taking their first steps or you are joining the ladies group for the joy of it, there is '
-        'a place for you here.</p></div>', unsafe_allow_html=True)
+    st.markdown('<div class="rule"></div>', unsafe_allow_html=True)
 
     st.markdown(
-        '<div class="tda-foot">Trupti Dance Academy · Melissa, TX · '
-        '<a href="https://truptidance.com" target="_blank">truptidance.com</a> · '
-        'Questions? Ask the assistant — it speaks English, Hindi, and Telugu.</div>',
+        '<div class="card"><div class="card-h">◇ CLASSES</div>'
+        '<div class="card-b">' + '<br>'.join(CLASSES) + '</div></div>',
+        unsafe_allow_html=True)
+    st.markdown(
+        '<div class="card"><div class="card-h">◇ WHERE WE DANCE</div>'
+        f'<div class="card-b">{LOCATION}<br><span class="dim">All classes $60 / 4-class session</span></div></div>',
+        unsafe_allow_html=True)
+    st.markdown(
+        '<div class="card"><div class="card-h">◇ ASK IN ANY LANGUAGE</div>'
+        f'<div class="card-b">{LANGUAGES}<br><span class="dim">The assistant replies in your language</span></div></div>',
         unsafe_allow_html=True)
 
-# ---------------------------- RIGHT: the chatbot --------------------------- #
-with right:
-    st.markdown('<div class="tda-chat-head">Studio Assistant</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="tda-chat-sub">Ask about classes, schedules, pricing, policies, or the '
-        'recital — in English, Hindi, or Telugu.</div>', unsafe_allow_html=True)
-
-    # starter suggestions
-    if not st.session_state.messages:
-        s1, s2 = st.columns(2)
-        s1.button("Class schedule & pricing", use_container_width=True,
-                  on_click=submit_question, args=("What classes do you offer and how much do they cost?",))
-        s2.button("When was the recital?", use_container_width=True,
-                  on_click=submit_question, args=("When was the recital and who performed?",))
-        s3, s4 = st.columns(2)
-        s3.button("How do I enroll?", use_container_width=True,
-                  on_click=submit_question, args=("How do I enroll my child in a class?",))
-        s4.button("Refund policy", use_container_width=True,
-                  on_click=submit_question, args=("What is your refund policy?",))
-
-    # history
-    for m in st.session_state.messages:
-        with st.chat_message(m["role"], avatar=("✦" if m["role"] == "assistant" else None)):
-            st.markdown(m["content"])
-
-    # input form (text_input + button works inside a column; st.chat_input does not)
-    with st.form("chat_form", clear_on_submit=True):
-        col_in, col_btn = st.columns([4, 1])
-        user_text = col_in.text_input("Message", label_visibility="collapsed",
-                                      placeholder="Type your question…")
-        sent = col_btn.form_submit_button("Send", use_container_width=True)
-    if sent and user_text.strip():
-        submit_question(user_text.strip())
-
-    # process a pending question (from form or a suggestion button)
-    if st.session_state.pending:
-        q = st.session_state.pending
-        st.session_state.pending = None
-        st.session_state.messages.append({"role": "user", "content": q})
-        with st.chat_message("user"):
-            st.markdown(q)
-        with st.chat_message("assistant", avatar="✦"):
-            with st.spinner("Thinking…"):
-                try:
-                    app = get_app()
-                    result = tda_pipeline.answer(app, q, st.session_state.thread_id)
-                    reply = result["final_answer"] or \
-                        "Sorry, I didn't catch that — could you rephrase?"
-                except Exception as e:
-                    reply = ("The assistant isn't available right now. Please check that the "
-                             "Nebius key and corpus files are in place.")
-                    with st.expander("Debug detail"):
-                        st.exception(e)
-                st.markdown(reply)
-        st.session_state.messages.append({"role": "assistant", "content": reply})
+    if st.button("Start a new chat ↻", use_container_width=True):
+        st.session_state.thread_id = f"web-{uuid.uuid4()}"
+        st.session_state.messages = [{"role": "assistant", "content": GREETING, "meta": None}]
         st.rerun()
+
+    st.markdown(f'<div class="copyright">© 2026 {ACADEMY}</div>', unsafe_allow_html=True)
+
+# --------------------------------------------------------------------------- #
+# Hero
+# --------------------------------------------------------------------------- #
+st.markdown('<div class="hero">A Dance Academy<br>That <span class="accent">Never Sleeps</span></div>',
+            unsafe_allow_html=True)
+st.markdown('<div class="sub">Ask our AI assistant about classes, fees, schedules, '
+            'and the recital — answers, instantly.</div>', unsafe_allow_html=True)
+
+# --------------------------------------------------------------------------- #
+# Suggestion chips -> queue a question
+# --------------------------------------------------------------------------- #
+pending = None
+cols = st.columns(len(SUGGESTIONS))
+for col, text in zip(cols, SUGGESTIONS):
+    if col.button(text, key=f"sug-{text}"):
+        pending = text
+
+# --------------------------------------------------------------------------- #
+# Chat panel header + history
+# --------------------------------------------------------------------------- #
+st.markdown('<div class="panel-top"><div class="panel-title">DANCE ACADEMY / ASSISTANT.</div>'
+            '<div class="panel-divider"></div></div>', unsafe_allow_html=True)
+
+for msg in st.session_state.messages:
+    avatar = "🩰" if msg["role"] == "assistant" else "🧑"
+    with st.chat_message(msg["role"], avatar=avatar):
+        st.markdown(msg["content"])
+        if msg.get("meta"):
+            st.markdown(f'<div class="meta">{msg["meta"]}</div>', unsafe_allow_html=True)
+
+# --------------------------------------------------------------------------- #
+# Input
+# --------------------------------------------------------------------------- #
+typed = st.chat_input("Ask me anything about Dance Academy…")
+if typed:
+    pending = typed
+
+# --------------------------------------------------------------------------- #
+# Handle a question
+# --------------------------------------------------------------------------- #
+if pending:
+    st.session_state.messages.append({"role": "user", "content": pending, "meta": None})
+    with st.chat_message("user", avatar="🧑"):
+        st.markdown(pending)
+
+    with st.chat_message("assistant", avatar="🩰"):
+        with st.spinner("Thinking…"):
+            try:
+                app = get_app()
+                result = answer(app, pending, st.session_state.thread_id)
+                reply = result.get("final_answer") or "Sorry, I didn't catch that — could you rephrase?"
+                meta = f"route: {result.get('route','—')}  ·  language: {result.get('language','—')}"
+            except Exception as e:
+                reply = ("Something went wrong reaching the assistant. Check that "
+                         "`OPENAI_API_KEY` is set, then try again.")
+                meta = f"error: {type(e).__name__}"
+        st.markdown(reply)
+        st.markdown(f'<div class="meta">{meta}</div>', unsafe_allow_html=True)
+
+    st.session_state.messages.append({"role": "assistant", "content": reply, "meta": meta})
+    st.rerun()

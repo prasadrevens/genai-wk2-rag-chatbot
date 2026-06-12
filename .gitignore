@@ -11,3 +11,18 @@ venv/
 # Local vector store / caches
 .chroma/
 chroma/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+ragas-env/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Streamlit secrets
+.streamlit/secrets.toml

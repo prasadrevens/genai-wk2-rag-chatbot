@@ -1,0 +1,8 @@
+# Separate venv for RAGAS scoring ONLY — do NOT install into your app venv.
+# RAGAS is incompatible with LangChain 1.x; this pins the older 0.3.x stack.
+# Verified: imports clean with this exact combination.
+ragas==0.2.15
+langchain-community<0.4
+langchain-openai<0.4
+python-dotenv
+pandas

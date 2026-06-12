@@ -12,10 +12,11 @@ Needs in the working directory:
 """
 
 import os
+import operator
 import re
 import json
 from pathlib import Path
-from typing import TypedDict
+from typing import Annotated, TypedDict
 
 from dotenv import load_dotenv
 from langchain_core.documents import Document
@@ -41,6 +42,11 @@ CORPORA = [
 ]
 
 _DIVIDER_LINE = re.compile(r"^[\s=\-_*~]+$")
+
+# Devanagari (Hindi) + Telugu script ranges. If the message contains none of
+# these, it's Latin-script (English or romanized) -> skip the translation LLM
+# call entirely (cold-start / latency fix).
+_NON_LATIN_SCRIPT = re.compile(r"[\u0900-\u097F\u0C00-\u0C7F]")
 
 
 # --------------------------------------------------------------------------- #
@@ -162,13 +168,41 @@ Never invent prices, dates, policies, or details not present in the context."""
 
     # ---- nodes ------------------------------------------------------------ #
     def detect_translate(state: dict) -> dict:
-        resp = llm.invoke([("system", DETECT_SYSTEM), ("human", state["text"])])
+        text = state["text"]
+        # English short-circuit: Latin-only text (English + romanized) skips
+        # the LLM call entirely. Only Devanagari/Telugu trigger translation.
+        if not _NON_LATIN_SCRIPT.search(text):
+            return {
+                "language": "English",
+                "script": "latin",
+                "english_text": text,
+                "original_question": text,
+            }
+        resp = llm.invoke([("system", DETECT_SYSTEM), ("human", text)])
         data = _extract_json(resp.content)
+        eng = data.get("english_text", text)
         return {
             "language": data.get("detected_language", "English"),
             "script": data.get("script", "latin"),
-            "english_text": data.get("english_text", state["text"]),
+            "english_text": eng,
+            "original_question": eng,
         }
+
+    CONDENSE_SYSTEM = """Given the conversation, rewrite the user's last question as a
+standalone English question. Resolve pronouns and references (it, that, the class).
+If it is already standalone, return it unchanged. Return ONLY the rewritten question."""
+
+    def condense_question(state: dict) -> dict:
+        history = state.get("history") or []
+        if not history:  # first turn -> smart skip, no LLM call (Option B)
+            return {}
+        convo = "\n".join(f"{role}: {content}" for role, content in history[-6:])
+        resp = llm.invoke([
+            ("system", CONDENSE_SYSTEM),
+            ("human", f"Conversation:\n{convo}\n\nLast question: {state['english_text']}"),
+        ])
+        condensed = resp.content.strip()
+        return {"english_text": condensed} if condensed else {}
 
     def router(state: dict) -> dict:
         return {"route": classify(state.get("english_text") or state["text"])}
@@ -192,14 +226,22 @@ Never invent prices, dates, policies, or details not present in the context."""
         return {"draft": ESCALATION_MSG}
 
     def translate_back(state: dict) -> dict:
+        q = state.get("original_question") or state["english_text"]
         if state["language"].lower().startswith("english"):
-            return {"final_answer": state["draft"]}
+            return {
+                "final_answer": state["draft"],
+                "history": [("user", q), ("assistant", state["draft"])],
+            }
         resp = llm.invoke([
             ("system", f"Translate the message into {state['language']}, keeping a natural, "
                        f"friendly tone. Preserve every fact. Return only the translation."),
             ("human", state["draft"]),
         ])
-        return {"final_answer": resp.content.strip()}
+        final = resp.content.strip()
+        return {
+            "final_answer": final,
+            "history": [("user", q), ("assistant", final)],
+        }
 
     # ---- assemble --------------------------------------------------------- #
     class State(TypedDict):
@@ -207,21 +249,26 @@ Never invent prices, dates, policies, or details not present in the context."""
         language: str
         script: str
         english_text: str
+        original_question: str                   # pre-condense question (debug + history)
         route: str
         context: list
         draft: str
         final_answer: str
+        history: Annotated[list, operator.add]   # accumulates (role, content) across turns
 
     g = StateGraph(State)
     for name, fn in [
-        ("detect_translate", detect_translate), ("router", router),
+        ("detect_translate", detect_translate),
+        ("condense_question", condense_question),
+        ("router", router),
         ("retrieve", retrieve), ("generate", generate),
         ("escalate", escalate), ("translate_back", translate_back),
     ]:
         g.add_node(name, fn)
 
     g.set_entry_point("detect_translate")
-    g.add_edge("detect_translate", "router")
+    g.add_edge("detect_translate", "condense_question")
+    g.add_edge("condense_question", "router")
     g.add_conditional_edges("router", route_picker,
                             {"classes": "retrieve", "recital": "retrieve",
                              "out_of_scope": "escalate"})

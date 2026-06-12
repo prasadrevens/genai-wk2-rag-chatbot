@@ -1,0 +1,100 @@
+{
+  "description": "Golden eval set for the Trupti Dance Academy RAG bot. 'scored' items get RAGAS metrics; 'routing_only' items check router/language behavior (multilingual + escalation answers would confuse an English LLM judge).",
+  "scored": [
+    {
+      "id": "q01_teen_time",
+      "question": "What time is the Teen Dance class?",
+      "reference": "The Teen Dance class (ages 12-18) is on Fridays from 5:00 PM to 6:00 PM.",
+      "expected_route": "classes"
+    },
+    {
+      "id": "q02_class_price",
+      "question": "How much do dance classes cost?",
+      "reference": "All classes cost $60.00 per 4-class session.",
+      "expected_route": "classes"
+    },
+    {
+      "id": "q03_attire",
+      "question": "What should my daughter wear to class?",
+      "reference": "Wear comfortable, breathable clothing that allows free movement, such as leggings, t-shirts, or tank tops. Avoid jeans or restrictive clothing. Students dance barefoot or in dance socks, so no special shoes are required.",
+      "expected_route": "classes"
+    },
+    {
+      "id": "q04_experience",
+      "question": "Does my child need any prior dance experience to join?",
+      "reference": "No prior experience is needed. Classes are designed for all experience levels and instructors break down moves step by step so complete beginners can follow along.",
+      "expected_route": "classes"
+    },
+    {
+      "id": "q05_refund_trap_classes",
+      "question": "Can I get a refund?",
+      "reference": "4-class session enrollments are non-refundable. If the academy cancels a class, it is not counted and an automatic class credit is applied with the enrollment end date extended. Special circumstances are reviewed case by case.",
+      "expected_route": "classes"
+    },
+    {
+      "id": "q06_academy_cancel",
+      "question": "What happens if the academy cancels a class?",
+      "reference": "An academy-canceled class is not counted; an automatic class credit is applied and the enrollment end date is extended accordingly.",
+      "expected_route": "classes"
+    },
+    {
+      "id": "q07_trial",
+      "question": "Can I try a class before committing to a full session?",
+      "reference": "Yes, the academy occasionally offers trial classes or drop-in sessions; contact the academy to learn about current opportunities. A trial class counts as the first class upon enrollment and only one trial class is permitted per student.",
+      "expected_route": "classes"
+    },
+    {
+      "id": "q08_bollyx",
+      "question": "What is BollyX and who can join it?",
+      "reference": "BollyX is a Bollywood-inspired dance fitness program combining dynamic choreography with music from around the world - a high-energy cardio workout. It is for ages 16 and up, all fitness levels, on Mondays and Wednesdays 6:30-7:30 PM, and no dance experience is necessary.",
+      "expected_route": "classes"
+    },
+    {
+      "id": "q09_recital_when_trap",
+      "question": "When is the recital?",
+      "reference": "The academy held its first Annual Recital on Friday, May 30, 2026, from 6:00 to 8:00 PM, and that event is already complete. No new recital date has been announced yet, though the academy plans to make it an annual tradition.",
+      "expected_route": "recital"
+    },
+    {
+      "id": "q10_refund_trap_recital",
+      "question": "Can I get a refund for the recital fees if my child withdraws?",
+      "reference": "The recital has its own refund policy: the participation fee is refundable minus a $15 administrative fee if the performer withdraws in writing at least 30 days before the recital; withdrawals fewer than 30 days before are not eligible. The costume fee is non-refundable once costumes are ordered. Audience tickets are non-refundable but transferable.",
+      "expected_route": "recital"
+    },
+    {
+      "id": "q11_external_performer",
+      "question": "My niece dances at another studio - can she perform in the recital?",
+      "reference": "Yes. External and community performers who are not enrolled at the academy are welcome to perform in the recital and register through the same form at the external fee tier.",
+      "expected_route": "recital"
+    },
+    {
+      "id": "q12_recital_categories",
+      "question": "What age groups performed in the recital?",
+      "reference": "The recital had five categories: Kids 4-6, Kids 7-8, a Girls group 9-15, a Ladies group 15+, and a Parent and Child category for toddlers aged 2-3 dancing with a parent.",
+      "expected_route": "recital"
+    }
+  ],
+  "routing_only": [
+    {
+      "id": "r01_out_of_scope",
+      "question": "Do you offer private one-on-one dance lessons?",
+      "expected_route": "out_of_scope",
+      "expected_language": "English",
+      "note": "Should trigger the escalation message."
+    },
+    {
+      "id": "r02_hindi",
+      "question": "\u091f\u0940\u0928 \u0921\u093e\u0902\u0938 \u0915\u094d\u0932\u093e\u0938 \u0915\u092c \u0939\u094b\u0924\u0940 \u0939\u0948?",
+      "expected_route": "classes",
+      "expected_language": "Hindi",
+      "note": "Devanagari script - must NOT short-circuit; answer should come back in Hindi."
+    },
+    {
+      "id": "r03_telugu",
+      "question": "\u0c30\u0c3f\u0c38\u0c48\u0c1f\u0c32\u0c4d \u0c0e\u0c2a\u0c4d\u0c2a\u0c41\u0c21\u0c41?",
+      "expected_route": "recital",
+      "expected_language": "Telugu",
+      "note": "Telugu script - translation path + recital routing."
+    }
+  ]
+}
