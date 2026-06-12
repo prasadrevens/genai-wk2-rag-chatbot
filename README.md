@@ -1,6 +1,6 @@
-# Trupti Dance Academy — RAG Assistant
+#Dance Academy — RAG Assistant
 
-A multilingual customer-support assistant for [Trupti Dance Academy](https://truptidance.com)
+A multilingual customer-support assistant for [  Dance Academy](https:// dance.com)
 (a Bollywood / BollyX studio in Melissa, TX), built as a Streamlit website with the chatbot
 on the side. Parents and students can ask about **enrollment, schedule, pricing, policies, and
 the annual recital** — in **English, Hindi, or Telugu** — and the bot escalates to a human when
@@ -47,8 +47,8 @@ requirements.txt                 # pinned dependencies
 
 1. Clone and enter the repo:
    ```bash
-   git clone https://github.com/<your-username>/trupti-dance-rag.git
-   cd trupti-dance-rag
+   git clone https://github.com/<your-username>/ -dance-rag.git
+   cd  -dance-rag
    ```
 2. Install dependencies (a virtual environment is recommended):
    ```bash
@@ -59,7 +59,7 @@ requirements.txt                 # pinned dependencies
    OPENAI_API_KEY=your-nebius-key
    LANGSMITH_API_KEY=your-langsmith-key
    LANGSMITH_TRACING=true
-   LANGSMITH_PROJECT=trupti-rag
+   LANGSMITH_PROJECT= -rag
    ```
 4. Run:
    ```bash
@@ -79,9 +79,9 @@ With all files in one folder:
 ```bash
 git init
 git add .
-git commit -m "Trupti Dance Academy RAG app"
+git commit -m "  Dance Academy RAG app"
 git branch -M main
-git remote add origin https://github.com/<your-username>/trupti-dance-rag.git
+git remote add origin https://github.com/<your-username>/ -dance-rag.git
 git push -u origin main
 ```
 
@@ -97,7 +97,7 @@ Before pushing, run `git status` and confirm **`.env` is NOT listed**.
    OPENAI_API_KEY = "your-nebius-key"
    LANGSMITH_API_KEY = "your-langsmith-key"
    LANGSMITH_TRACING = "true"
-   LANGSMITH_PROJECT = "trupti-rag"
+   LANGSMITH_PROJECT = " -rag"
    ```
 5. Click **Deploy**.
 
@@ -112,7 +112,7 @@ Updating later: just `git push` to `main` — changes redeploy automatically.
 
 Tracing is **configuration, not code**. With `LANGSMITH_TRACING=true` and `LANGSMITH_API_KEY`
 in the environment, LangChain and LangGraph auto-instrument every run. In your
-[LangSmith](https://smith.langchain.com) `trupti-rag` project you'll see, per question:
+[LangSmith](https://smith.langchain.com) ` -rag` project you'll see, per question:
 
 - each graph node as a span (`detect_translate` → `router` → `retrieve` → `generate` → `translate_back`)
 - the router's classification decision
